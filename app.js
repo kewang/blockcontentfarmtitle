@@ -856,6 +856,32 @@ function callSendAPI(messageData) {
     } else {
       console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
     }
+  });
+
+  request({
+    uri: 'https://graph.facebook.com/v2.9/1439697112725497/photos',
+    qs: { access_token: PAGE_ACCESS_TOKEN2 },
+    method: 'POST',
+    json: {
+      "url": "http://www.d1net.com/uploadfile/2014/0725/20140725030356649.jpg",
+      "caption": "04271519"
+    }
+
+  }, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var recipientId = body.recipient_id;
+      var messageId = body.message_id;
+
+      if (messageId) {
+        console.log("Successfully sent message with id %s to recipient %s", 
+          messageId, recipientId);
+      } else {
+      console.log("Successfully called Send API for recipient %s", 
+        recipientId);
+      }
+    } else {
+      console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+    }
   });  
 }
 
