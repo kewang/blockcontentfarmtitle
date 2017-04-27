@@ -544,16 +544,6 @@ function sendTextMessage(recipientId, messageText) {
  *
  */
 function sendTextImageMessage(recipientId, message) {
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      text: "發送成功",
-      metadata: "DEVELOPER_DEFINED_METADATA"
-    }
-  };
-
   var imageUrl = message.attachments[0].url.replace("https://l.facebook.com/l.php?u=","").replace(/%3A/g,":").replace(/%2F/g,"/").replace(/&.*$/,"");
 
   var pageData = {
@@ -561,11 +551,19 @@ function sendTextImageMessage(recipientId, message) {
     caption: message.text
   };
 
-  var sendToPageStatus = callSendToPageAPI(pageData);
+  callSendToPageAPI(pageData, function(caption){
+    var messageData = {
+      recipient: {
+        id: recipientId
+      },
+      message: {
+        text: "發送 " + caption + " 成功",
+        metadata: "DEVELOPER_DEFINED_METADATA"
+      }
+    };
 
-  if (sendToPageStatus) {
     callSendToUserAPI(messageData);
-  }
+  });
 }
 
 /*
@@ -869,6 +867,8 @@ function callSendToUserAPI(messageData) {
     method: 'POST',
     json: messageData
   }, function (error, response, body) {
+    console.log("body: " + JSON.stringify(body, null, 2));
+    
     if (!error && response.statusCode == 200) {
       var recipientId = body.recipient_id;
       var messageId = body.message_id;
@@ -884,7 +884,7 @@ function callSendToUserAPI(messageData) {
   });
 }
 
-function callSendToPageAPI(messageData) {
+function callSendToPageAPI(messageData, callback) {
   console.log(messageData);
 
   request({
@@ -893,6 +893,8 @@ function callSendToPageAPI(messageData) {
     method: 'POST',
     json: messageData
   }, function (error, response, body) {
+    console.log("body: " + JSON.stringify(body, null, 2));
+
     if (!error && response.statusCode == 200) {
       var recipientId = body.recipient_id;
       var messageId = body.message_id;
@@ -903,11 +905,9 @@ function callSendToPageAPI(messageData) {
         console.log("Successfully called Send API for recipient %s", recipientId);
       }
 
-      return true;
+      callback(messageData.caption);
     } else {
       console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
-
-      return false;
     }
   });
 }
