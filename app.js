@@ -228,9 +228,7 @@ function receivedMessage(event) {
   var timeOfMessage = event.timestamp;
   var message = event.message;
 
-  console.log("Received message for user %d and page %d at %d with message:", 
-    senderID, recipientID, timeOfMessage);
-  console.log(JSON.stringify(message));
+  console.log("Received message for user %d and page %d at %d with message:", senderID, recipientID, timeOfMessage);
 
   var isEcho = message.is_echo;
   var messageId = message.mid;
@@ -244,13 +242,11 @@ function receivedMessage(event) {
 
   if (isEcho) {
     // Just logging message echoes to console
-    console.log("Received echo for message %s and app %d with metadata %s", 
-      messageId, appId, metadata);
+    console.log("Received echo for message %s and app %d with metadata %s", messageId, appId, metadata);
     return;
   } else if (quickReply) {
     var quickReplyPayload = quickReply.payload;
-    console.log("Quick reply for message %s with payload %s",
-      messageId, quickReplyPayload);
+    console.log("Quick reply for message %s with payload %s", messageId, quickReplyPayload);
 
     sendTextMessage(senderID, "Quick reply tapped");
     return;
@@ -855,7 +851,7 @@ function callSendAPI(messageData) {
     } else {
       console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
     }
-  });  
+  });
 }
 
 // Start server
