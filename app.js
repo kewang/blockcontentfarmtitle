@@ -45,6 +45,10 @@ const PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN) ?
   (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
   config.get('pageAccessToken');
 
+const PAGE_ACCESS_TOKEN2 = (process.env.MESSENGER_PAGE_ACCESS_TOKEN2) ?
+  (process.env.MESSENGER_PAGE_ACCESS_TOKEN2) :
+  config.get('pageAccessToken2');
+
 // URL where the app is running (include protocol). Used to point to scripts and 
 // assets located at this address. 
 const SERVER_URL = (process.env.SERVER_URL) ?
@@ -830,7 +834,7 @@ function callSendAPI(messageData) {
 
   request({
     uri: 'https://graph.facebook.com/v2.9/1439697112725497/feed',
-    qs: { access_token: PAGE_ACCESS_TOKEN },
+    qs: { access_token: PAGE_ACCESS_TOKEN2 },
     method: 'POST',
     json: {
       "message": "This is a test message"
