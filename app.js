@@ -240,82 +240,86 @@ function receivedMessage(event) {
   var messageAttachments = message.attachments;
   var quickReply = message.quick_reply;
 
-  if (isEcho) {
-    // Just logging message echoes to console
-    console.log("Received echo for message %s and app %d with metadata %s", messageId, appId, metadata);
-    return;
-  } else if (quickReply) {
-    var quickReplyPayload = quickReply.payload;
-    console.log("Quick reply for message %s with payload %s", messageId, quickReplyPayload);
-
-    sendTextMessage(senderID, "Quick reply tapped");
-    return;
+  if (messageText && messageAttachments.length > 0) {
+    sendTextImageMessage(senderID, message);
   }
 
-  if (messageText) {
+  // if (isEcho) {
+  //   // Just logging message echoes to console
+  //   console.log("Received echo for message %s and app %d with metadata %s", messageId, appId, metadata);
+  //   return;
+  // } else if (quickReply) {
+  //   var quickReplyPayload = quickReply.payload;
+  //   console.log("Quick reply for message %s with payload %s", messageId, quickReplyPayload);
 
-    // If we receive a text message, check to see if it matches any special
-    // keywords and send back the corresponding example. Otherwise, just echo
-    // the text we received.
-    switch (messageText) {
-      case 'image':
-        sendImageMessage(senderID);
-        break;
+  //   sendTextMessage(senderID, "Quick reply tapped");
+  //   return;
+  // }
 
-      case 'gif':
-        sendGifMessage(senderID);
-        break;
+  // if (messageText) {
 
-      case 'audio':
-        sendAudioMessage(senderID);
-        break;
+  //   // If we receive a text message, check to see if it matches any special
+  //   // keywords and send back the corresponding example. Otherwise, just echo
+  //   // the text we received.
+  //   switch (messageText) {
+  //     case 'image':
+  //       sendImageMessage(senderID);
+  //       break;
 
-      case 'video':
-        sendVideoMessage(senderID);
-        break;
+  //     case 'gif':
+  //       sendGifMessage(senderID);
+  //       break;
 
-      case 'file':
-        sendFileMessage(senderID);
-        break;
+  //     case 'audio':
+  //       sendAudioMessage(senderID);
+  //       break;
 
-      case 'button':
-        sendButtonMessage(senderID);
-        break;
+  //     case 'video':
+  //       sendVideoMessage(senderID);
+  //       break;
 
-      case 'generic':
-        sendGenericMessage(senderID);
-        break;
+  //     case 'file':
+  //       sendFileMessage(senderID);
+  //       break;
 
-      case 'receipt':
-        sendReceiptMessage(senderID);
-        break;
+  //     case 'button':
+  //       sendButtonMessage(senderID);
+  //       break;
 
-      case 'quick reply':
-        sendQuickReply(senderID);
-        break;        
+  //     case 'generic':
+  //       sendGenericMessage(senderID);
+  //       break;
 
-      case 'read receipt':
-        sendReadReceipt(senderID);
-        break;        
+  //     case 'receipt':
+  //       sendReceiptMessage(senderID);
+  //       break;
 
-      case 'typing on':
-        sendTypingOn(senderID);
-        break;        
+  //     case 'quick reply':
+  //       sendQuickReply(senderID);
+  //       break;        
 
-      case 'typing off':
-        sendTypingOff(senderID);
-        break;        
+  //     case 'read receipt':
+  //       sendReadReceipt(senderID);
+  //       break;        
 
-      case 'account linking':
-        sendAccountLinking(senderID);
-        break;
+  //     case 'typing on':
+  //       sendTypingOn(senderID);
+  //       break;        
 
-      default:
-        sendTextMessage(senderID, messageText);
-    }
-  } else if (messageAttachments) {
-    sendTextMessage(senderID, "Message with attachment received");
-  }
+  //     case 'typing off':
+  //       sendTypingOff(senderID);
+  //       break;        
+
+  //     case 'account linking':
+  //       sendAccountLinking(senderID);
+  //       break;
+
+  //     default:
+  //       sendTextMessage(senderID, messageText);
+  //   }
+  // } else if (messageAttachments) {
+  //   sendTextMessage(senderID, "Message with attachment received");
+  // }
 }
 
 
@@ -533,6 +537,35 @@ function sendTextMessage(recipientId, messageText) {
   };
 
   callSendAPI(messageData);
+}
+
+/*
+ * Send a text message using the Send API.
+ *
+ */
+function sendTextImageMessage(recipientId, message) {
+  var messageData = {
+    recipient: {
+      id: recipientId
+    },
+    message: {
+      text: "發送成功",
+      metadata: "DEVELOPER_DEFINED_METADATA"
+    }
+  };
+
+  var imageUrl = message.attachments[0].url;
+
+  var pageData = {
+    url: imageUrl,
+    caption: message.text
+  };
+
+  var sendToPageStatus = callSendToPageAPI(pageData);
+
+  if (sendToPageStatus) {
+    callSendToUserAPI(messageData);
+  }
 }
 
 /*
@@ -817,39 +850,60 @@ function callSendAPI(messageData) {
       var messageId = body.message_id;
 
       if (messageId) {
-        console.log("Successfully sent message with id %s to recipient %s", 
-          messageId, recipientId);
+        console.log("Successfully sent message with id %s to recipient %s", messageId, recipientId);
       } else {
-      console.log("Successfully called Send API for recipient %s", 
-        recipientId);
+        console.log("Successfully called Send API for recipient %s", recipientId);
       }
     } else {
       console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
     }
   });
+}
 
+function callSendToUserAPI(messageData) {
   request({
-    uri: 'https://graph.facebook.com/v2.9/1439697112725497/photos',
-    qs: { access_token: PAGE_ACCESS_TOKEN2 },
+    uri: 'https://graph.facebook.com/v2.9/me/messages',
+    qs: { access_token: PAGE_ACCESS_TOKEN },
     method: 'POST',
-    json: {
-      "url": "http://www.d1net.com/uploadfile/2014/0725/20140725030356649.jpg",
-      "caption": "04271519"
-    }
+    json: messageData
   }, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       var recipientId = body.recipient_id;
       var messageId = body.message_id;
 
       if (messageId) {
-        console.log("Successfully sent message with id %s to recipient %s", 
-          messageId, recipientId);
+        console.log("Successfully sent message with id %s to recipient %s", messageId, recipientId);
       } else {
-      console.log("Successfully called Send API for recipient %s", 
-        recipientId);
+        console.log("Successfully called Send API for recipient %s", recipientId);
       }
     } else {
       console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+    }
+  });
+}
+
+function callSendToPageAPI(messageData) {
+  request({
+    uri: 'https://graph.facebook.com/v2.9/1439697112725497/photos',
+    qs: { access_token: PAGE_ACCESS_TOKEN2 },
+    method: 'POST',
+    json: messageData
+  }, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var recipientId = body.recipient_id;
+      var messageId = body.message_id;
+
+      if (messageId) {
+        console.log("Successfully sent message with id %s to recipient %s", messageId, recipientId);
+      } else {
+        console.log("Successfully called Send API for recipient %s", recipientId);
+      }
+
+      return true;
+    } else {
+      console.error("Failed calling Send API", response.statusCode, response.statusMessage, body.error);
+
+      return false;
     }
   });
 }
