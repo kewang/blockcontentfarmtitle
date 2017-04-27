@@ -554,7 +554,7 @@ function sendTextImageMessage(recipientId, message) {
     }
   };
 
-  var imageUrl = message.attachments[0].url;
+  var imageUrl = message.attachments[0].url.replace("https://l.facebook.com/l.php?u=","").replace(/%3A/g,":").replace(/%2F/g,"/").replace(/&.*$/,"");
 
   var pageData = {
     url: imageUrl,
@@ -861,6 +861,8 @@ function callSendAPI(messageData) {
 }
 
 function callSendToUserAPI(messageData) {
+  console.log(messageData);
+
   request({
     uri: 'https://graph.facebook.com/v2.9/me/messages',
     qs: { access_token: PAGE_ACCESS_TOKEN },
@@ -883,6 +885,8 @@ function callSendToUserAPI(messageData) {
 }
 
 function callSendToPageAPI(messageData) {
+  console.log(messageData);
+
   request({
     uri: 'https://graph.facebook.com/v2.9/1439697112725497/photos',
     qs: { access_token: PAGE_ACCESS_TOKEN2 },
