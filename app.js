@@ -544,7 +544,13 @@ function sendTextMessage(recipientId, messageText) {
  *
  */
 function sendTextImageMessage(recipientId, message) {
-  var imageUrl = message.attachments[0].url.replace("https://l.facebook.com/l.php?u=","").replace(/%3A/g,":").replace(/%2F/g,"/").replace(/&.*$/,"");
+  var imageUrl = message.attachments[0].url;
+
+  var canReplace = /https:\/\/l\.facebook\.com\/l\.php\?u=/.test(imageUrl);
+
+  if (canReplace) {
+     imageUrl = imageUrl.replace("https://l.facebook.com/l.php?u=","").replace(/%3A/g,":").replace(/%2F/g,"/").replace(/&.*$/,"");
+  }
 
   var pageData = {
     url: imageUrl,
@@ -868,7 +874,7 @@ function callSendToUserAPI(messageData) {
     json: messageData
   }, function (error, response, body) {
     console.log("body: " + JSON.stringify(body, null, 2));
-    
+
     if (!error && response.statusCode == 200) {
       var recipientId = body.recipient_id;
       var messageId = body.message_id;
