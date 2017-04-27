@@ -45,6 +45,7 @@ const PAGE_ACCESS_TOKEN = (process.env.MESSENGER_PAGE_ACCESS_TOKEN) ?
   (process.env.MESSENGER_PAGE_ACCESS_TOKEN) :
   config.get('pageAccessToken');
 
+// Post some message to page via access token
 const PAGE_ACCESS_TOKEN2 = (process.env.MESSENGER_PAGE_ACCESS_TOKEN2) ?
   (process.env.MESSENGER_PAGE_ACCESS_TOKEN2) :
   config.get('pageAccessToken2');
@@ -55,7 +56,7 @@ const SERVER_URL = (process.env.SERVER_URL) ?
   (process.env.SERVER_URL) :
   config.get('serverURL');
 
-if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && SERVER_URL)) {
+if (!(APP_SECRET && VALIDATION_TOKEN && PAGE_ACCESS_TOKEN && PAGE_ACCESS_TOKEN2 && SERVER_URL)) {
   console.error("Missing config values");
   process.exit(1);
 }
